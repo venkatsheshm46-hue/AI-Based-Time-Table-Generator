@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time Table Pro — Smart Scheduling System</title>
+  <meta name="description" content="Time Table Pro: AI-powered clash-free timetable generator for educational institutions. Manage faculty, subjects, classrooms and export schedules instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════ LOGIN PAGE ═══════════════════════════════ -->
+<div id="page-login" class="page active">
+  <div class="login-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="login-container">
+    <div class="login-card glass-card">
+      <div class="login-logo">
+        <div class="logo-icon"><i data-lucide="calendar-days"></i></div>
+        <div class="logo-text">
+          <h1>Time Table <span class="gradient-text">Pro</span></h1>
+          <p data-i18n="login.subtitle">Smart Scheduling System</p>
+        </div>
+      </div>
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <div class="input-wrap">
+            <i data-lucide="mail"></i>
+            <input type="email" id="login-email" placeholder="admin@school.edu" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <div class="input-wrap">
+            <i data-lucide="lock"></i>
+            <input type="password" id="login-password" placeholder="••••••••" required />
+            <button type="button" class="eye-btn" id="toggle-password"><i data-lucide="eye"></i></button>
+          </div>
+        </div>
+        <div id="login-error" class="login-error hidden">
+          <i data-lucide="alert-circle"></i><span>Invalid credentials. Please try again.</span>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg w-full" id="login-btn">
+          <span>Sign In</span><i data-lucide="arrow-right"></i>
+        </button>
+      </form>
+      <div class="login-hint glass-card-sm">
+        <i data-lucide="info"></i>
+        <div>
+          <strong data-i18n="login.demoCredentials">Demo Credentials</strong>
+          <p>Admin: admin@school.edu / admin123</p>
+          <p>Teacher: teacher@school.edu / teacher123</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ MAIN APP ═══════════════════════════════ -->
+<div id="app" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon-sm"><i data-lucide="calendar-days"></i></div>
+        <span>Time Table <strong>Pro</strong></span>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle"><i data-lucide="panel-left-close"></i></button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label" data-i18n="nav.main">Main</div>
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <i data-lucide="layout-dashboard"></i><span data-i18n="nav.dashboard">Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-page="timetable">
+        <i data-lucide="calendar-range"></i><span data-i18n="nav.timetable">Timetable</span>
+      </a>
+      <a href="#" class="nav-item" data-page="scheduler">
+        <i data-lucide="wand-sparkles"></i><span data-i18n="nav.autoScheduler">Auto Scheduler</span>
+      </a>
+
+      <div class="nav-section-label" data-i18n="nav.management">Management</div>
+      <a href="#" class="nav-item" data-page="faculty">
+        <i data-lucide="users"></i><span data-i18n="nav.faculty">Faculty</span>
+      </a>
+      <a href="#" class="nav-item" data-page="subjects">
+        <i data-lucide="book-open"></i><span data-i18n="nav.subjectsRooms">Subjects & Rooms</span>
+      </a>
+      <a href="#" class="nav-item" data-page="workload">
+        <i data-lucide="bar-chart-3"></i><span data-i18n="nav.workload">Workload</span>
+      </a>
+
+      <div class="nav-section-label" data-i18n="nav.system">System</div>
+      <a href="#" class="nav-item" data-page="export">
+        <i data-lucide="download"></i><span data-i18n="nav.export">Export</span>
+      </a>
+      <a href="#" class="nav-item" data-page="settings">
+        <i data-lucide="settings"></i><span data-i18n="nav.settings">Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" id="user-chip">
+        <div class="user-avatar" id="user-avatar-sidebar">A</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name-sidebar">Admin</div>
+          <div class="user-role" id="user-role-sidebar">Administrator</div>
+        </div>
+        <button class="logout-btn" id="logout-btn" title="Logout"><i data-lucide="log-out"></i></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-menu-btn" id="mobile-menu-btn"><i data-lucide="menu"></i></button>
+        <div class="breadcrumb" id="breadcrumb">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <button id="tutorial-btn">
+          <i data-lucide="graduation-cap"></i><span data-i18n="topbar.tutorial">Tutorial</span>
+        </button>
+        <!-- Language Switcher -->
+        <div class="lang-switcher" id="lang-switcher">
+          <button class="lang-btn" id="lang-btn" title="Change Language">
+            <i data-lucide="globe"></i>
+            <span id="lang-current-flag">🇬🇧</span>
+            <span id="lang-current-code">EN</span>
+            <i data-lucide="chevron-down" style="width:12px;height:12px;opacity:0.6"></i>
+          </button>
+          <div class="lang-dropdown" id="lang-dropdown"></div>
+        </div>
+        <div class="semester-badge" id="semester-badge">Semester 1 • 2024</div>
+        <button class="notif-btn" id="notif-btn"><i data-lucide="bell"></i><span class="notif-dot"></span></button>
+      </div>
+    </header>
+
+    <!-- ── DASHBOARD ── -->
+    <section id="page-dashboard" class="content-page active">
+      <div class="page-header">
+        <div>
+          <h2 data-i18n="dash.title">Dashboard</h2>
+          <p class="page-subtitle"><span data-i18n="dash.welcomeBack">Welcome back,</span> <span id="welcome-name">Admin</span> 👋</p>
+        </div>
+        <button class="btn btn-primary" id="quick-generate-btn">
+          <i data-lucide="wand-sparkles"></i> <span data-i18n="dash.quickGenerate">Quick Generate</span>
+        </button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card glass-card" id="stat-faculty">
+          <div class="stat-icon violet"><i data-lucide="users"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-faculty-count">0</div>
+            <div class="stat-label" data-i18n="dash.facultyMembers">Faculty Members</div>
+          </div>
+          <div class="stat-trend up"><i data-lucide="trending-up"></i></div>
+        </div>
+        <div class="stat-card glass-card" id="stat-subjects">
+          <div class="stat-icon cyan"><i data-lucide="book-open"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-subject-count">0</div>
+            <div class="stat-label" data-i18n="dash.subjects">Subjects</div>
+          </div>
+          <div class="stat-trend up"><i data-lucide="trending-up"></i></div>
+        </div>
+        <div class="stat-card glass-card" id="stat-rooms">
+          <div class="stat-icon amber"><i data-lucide="door-open"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-room-count">0</div>
+            <div class="stat-label" data-i18n="dash.classrooms">Classrooms</div>
+          </div>
+          <div class="stat-trend neutral"><i data-lucide="minus"></i></div>
+        </div>
+        <div class="stat-card glass-card" id="stat-slots">
+          <div class="stat-icon green"><i data-lucide="calendar-check"></i></div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-slot-count">0</div>
+            <div class="stat-label" data-i18n="dash.scheduledSlots">Scheduled Slots</div>
+          </div>
+          <div class="stat-trend up"><i data-lucide="trending-up"></i></div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="glass-card dash-card">
+          <div class="card-header">
+            <h3><i data-lucide="activity"></i> <span data-i18n="dash.recentActivity">Recent Activity</span></h3>
+          </div>
+          <div class="activity-list" id="activity-list">
+            <div class="empty-state-sm"><i data-lucide="inbox"></i><p>No activity yet</p></div>
+          </div>
+        </div>
+        <div class="glass-card dash-card">
+          <div class="card-header">
+            <h3><i data-lucide="zap"></i> <span data-i18n="dash.quickActions">Quick Actions</span></h3>
+          </div>
+          <div class="quick-actions">
+            <button class="qa-btn" data-page="faculty"><i data-lucide="user-plus"></i><span data-i18n="dash.addFaculty">Add Faculty</span></button>
+            <button class="qa-btn" data-page="subjects"><i data-lucide="book-plus"></i><span data-i18n="dash.addSubject">Add Subject</span></button>
+            <button class="qa-btn" data-page="scheduler"><i data-lucide="wand-sparkles"></i><span data-i18n="dash.generate">Generate</span></button>
+            <button class="qa-btn" data-page="export"><i data-lucide="download"></i><span data-i18n="nav.export">Export</span></button>
+          </div>
+        </div>
+        <div class="glass-card dash-card">
+          <div class="card-header">
+            <h3><i data-lucide="bar-chart-2"></i> <span data-i18n="dash.workloadOverview">Workload Overview</span></h3>
+          </div>
+          <div class="workload-mini" id="workload-mini">
+            <div class="empty-state-sm"><i data-lucide="users"></i><p>No faculty added</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FACULTY ── -->
+    <section id="page-faculty" class="content-page">
+      <div class="page-header">
+        <div>
+          <h2 data-i18n="faculty.title">Faculty Management</h2>
+          <p class="page-subtitle" data-i18n="faculty.subtitle">Manage teachers and their availability</p>
+        </div>
+        <button class="btn btn-primary" id="add-faculty-btn">
+          <i data-lucide="user-plus"></i> <span data-i18n="faculty.addFaculty">Add Faculty</span>
+        </button>
+      </div>
+
+      <div class="search-bar-row">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input type="text" id="faculty-search" placeholder="Search faculty..." />
+        </div>
+        <select id="faculty-filter" class="select-input">
+          <option value="all">All Departments</option>
+        </select>
+      </div>
+
+      <div class="table-card glass-card">
+        <table class="data-table" id="faculty-table">
+          <thead>
+            <tr>
+              <th data-i18n="faculty.thFaculty">Faculty</th>
+              <th data-i18n="faculty.thDept">Department</th>
+              <th data-i18n="faculty.thSubjects">Subjects</th>
+              <th data-i18n="faculty.thHours">Max Hours/Week</th>
+              <th data-i18n="faculty.thAvail">Availability</th>
+              <th data-i18n="faculty.thActions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="faculty-tbody">
+            <tr><td colspan="6" class="empty-cell"><div class="empty-state-sm"><i data-lucide="users"></i><p>No faculty added yet. Click "Add Faculty" to get started.</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SUBJECTS & ROOMS ── -->
+    <section id="page-subjects" class="content-page">
+      <div class="page-header">
+        <div>
+          <h2 data-i18n="subjects.title">Subjects & Classrooms</h2>
+          <p class="page-subtitle" data-i18n="subjects.subtitle">Configure subjects and room allocations</p>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="add-subject-btn"><i data-lucide="book-plus"></i> <span data-i18n="subjects.addSubject">Add Subject</span></button>
+          <button class="btn btn-outline" id="add-room-btn"><i data-lucide="building-2"></i> <span data-i18n="subjects.addRoom">Add Room</span></button>
+        </div>
+      </div>
+
+      <div class="two-col-grid">
+        <!-- Subjects -->
+        <div>
+          <h3 class="section-title"><i data-lucide="book-open"></i> <span data-i18n="subjects.heading">Subjects</span></h3>
+          <div class="card-list" id="subjects-list">
+            <div class="empty-state-sm"><i data-lucide="book-open"></i><p>No subjects yet</p></div>
+          </div>
+        </div>
+        <!-- Rooms -->
+        <div>
+          <h3 class="section-title"><i data-lucide="building-2"></i> <span data-i18n="subjects.roomsHeading">Classrooms</span></h3>
+          <div class="card-list" id="rooms-list">
+            <div class="empty-state-sm"><i data-lucide="building-2"></i><p>No rooms yet</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SCHEDULER ── -->
+    <section id="page-scheduler" class="content-page">
+      <div class="page-header">
+        <div>
+          <h2 data-i18n="scheduler.title">Auto Scheduler</h2>
+          <p class="page-subtitle" data-i18n="scheduler.subtitle">Generate a clash-free timetable automatically</p>
+        </div>
+      </div>
+
+      <div class="scheduler-layout">
+        <div class="glass-card scheduler-config">
+          <h3><i data-lucide="sliders-horizontal"></i> <span data-i18n="scheduler.config">Configuration</span></h3>
+          <div class="form-group">
+            <label data-i18n="scheduler.periods">Periods Per Day</label>
+            <input type="number" id="sched-periods" class="form-input" value="6" min="4" max="10" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="scheduler.days">Working Days</label>
+            <div class="day-checkboxes" id="sched-days">
+              <label class="day-cb active"><input type="checkbox" value="Mon" checked /><span>Mon</span></label>
+              <label class="day-cb active"><input type="checkbox" value="Tue" checked /><span>Tue</span></label>
+              <label class="day-cb active"><input type="checkbox" value="Wed" checked /><span>Wed</span></label>
+              <label class="day-cb active"><input type="checkbox" value="Thu" checked /><span>Thu</span></label>
+              <label class="day-cb active"><input type="checkbox" value="Fri" checked /><span>Fri</span></label>
+              <label class="day-cb"><input type="checkbox" value="Sat" /><span>Sat</span></label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-i18n="scheduler.classes">Classes / Sections</label>
+            <div id="sched-classes-wrap">
+              <div class="tag-input-row">
+                <input type="text" id="sched-class-input" class="form-input" placeholder="e.g. CS-A" />
+                <button class="btn btn-outline btn-sm" id="sched-add-class-btn"><i data-lucide="plus"></i></button>
+              </div>
+              <div class="tag-list" id="sched-class-tags"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label data-i18n="scheduler.strategy">Strategy</label>
+            <select class="form-input" id="sched-strategy">
+              <option value="balanced">Balanced Workload</option>
+              <option value="compact">Compact Schedule</option>
+              <option value="spread">Spread Evenly</option>
+            </select>
+          </div>
+          <button class="btn btn-primary btn-lg w-full mt-1" id="generate-btn">
+            <i data-lucide="wand-sparkles"></i> <span data-i18n="scheduler.generate">Generate Timetable</span>
+          </button>
+          <button class="btn btn-outline w-full mt-sm" id="clear-schedule-btn">
+            <i data-lucide="trash-2"></i> <span data-i18n="scheduler.clear">Clear Schedule</span>
+          </button>
+        </div>
+
+        <div class="scheduler-right">
+          <div class="glass-card scheduler-log-card">
+            <h3><i data-lucide="terminal"></i> <span data-i18n="scheduler.log">Scheduler Log</span></h3>
+            <div class="log-window" id="sched-log">
+              <div class="log-line info"><span class="log-time">--:--</span> Ready to generate. Configure settings and press Generate.</div>
+            </div>
+          </div>
+          <div class="glass-card scheduler-status-card">
+            <div class="status-row">
+              <div class="status-item">
+                <div class="status-dot" id="status-faculty"></div>
+                <span id="status-faculty-txt">Faculty: 0</span>
+              </div>
+              <div class="status-item">
+                <div class="status-dot" id="status-subjects"></div>
+                <span id="status-subjects-txt">Subjects: 0</span>
+              </div>
+              <div class="status-item">
+                <div class="status-dot" id="status-rooms"></div>
+                <span id="status-rooms-txt">Rooms: 0</span>
+              </div>
+              <div class="status-item">
+                <div class="status-dot" id="status-classes"></div>
+                <span id="status-classes-txt">Classes: 0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TIMETABLE ── -->
+    <section id="page-timetable" class="content-page">
+      <div class="page-header">
+        <div>
+          <h2 data-i18n="tt.title">Timetable</h2>
+          <p class="page-subtitle" data-i18n="tt.subtitle">View, edit and manage your schedule</p>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-outline btn-sm" id="tt-print-btn"><i data-lucide="printer"></i> <span data-i18n="tt.print">Print</span></button>
+          <button class="btn btn-primary btn-sm" id="tt-export-btn"><i data-lucide="download"></i> <span data-i18n="tt.export">Export</span></button>
+        </div>
+      </div>
+
+      <div class="tt-controls glass-card">
+        <div class="tt-filter-row">
+          <div class="filter-group">
+            <label data-i18n="tt.viewBy">View By</label>
+            <div class="tab-switcher" id="tt-view-switcher">
+              <button class="tab-btn active" data-view="class" data-i18n="tt.class">Class</button>
+              <button class="tab-btn" data-view="faculty" data-i18n="tt.faculty">Faculty</button>
+              <button class="tab-btn" data-view="room" data-i18n="tt.room">Room</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label data-i18n="tt.select">Select</label>
+            <select id="tt-filter-select" class="select-input"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="timetable-wrap glass-card" id="timetable-wrap">
+        <div class="empty-state" id="tt-empty">
+          <div class="empty-icon"><i data-lucide="calendar-x"></i></div>
+          <h3 data-i18n="tt.noTimetable">No Timetable Generated</h3>
+          <p data-i18n="tt.noTimetableDesc">Go to Auto Scheduler and generate a timetable first.</p>
+          <button class="btn btn-primary mt-1" data-page="scheduler"><i data-lucide="wand-sparkles"></i> <span data-i18n="tt.goScheduler">Go to Scheduler</span></button>
+        </div>
+        <div id="timetable-grid-container" class="hidden"></div>
+      </div>
+    </section>
+
+    <!-- ── WORKLOAD ── -->
+    <section id="page-workload" class="content-page">
+      <div class="page-header">
+        <div>
+          <h2>Workload Analytics</h2>
+          <p class="page-subtitle">Monitor and balance teaching loads</p>
+        </div>
+        <button class="btn btn-outline" id="balance-btn">
+          <i data-lucide="scale"></i> Auto Balance
+        </button>
+      </div>
+      <div class="workload-grid" id="workload-grid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-icon"><i data-lucide="users"></i></div>
+          <h3>No Faculty Added</h3>
+          <p>Add faculty members to see workload analytics.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── EXPORT ── -->
+    <section id="page-export" class="content-page">
+      <div class="page-header">
+        <div>
+          <h2 data-i18n="export.title">Export</h2>
+          <p class="page-subtitle" data-i18n="export.subtitle">Download your timetable in multiple formats</p>
+        </div>
+      </div>
+      <div class="export-grid">
+        <div class="glass-card export-card" id="export-pdf-card">
+          <div class="export-icon pdf-icon"><i data-lucide="file-text"></i></div>
+          <h3 data-i18n="export.pdfTitle">PDF Export</h3>
+          <p data-i18n="export.pdfDesc">Download a print-ready PDF of the complete timetable with all slots, faculty and room details.</p>
+          <div class="export-options">
+            <label class="checkbox-label"><input type="checkbox" id="pdf-all-classes" checked /> <span data-i18n="export.allClasses">All Classes</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="pdf-faculty-view" /> <span data-i18n="export.facultyView">Faculty View</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="pdf-room-view" /> <span data-i18n="export.roomView">Room View</span></label>
+          </div>
+          <button class="btn btn-primary w-full" id="export-pdf-btn">
+            <i data-lucide="download"></i> <span data-i18n="export.downloadPdf">Download PDF</span>
+          </button>
+        </div>
+
+        <div class="glass-card export-card" id="export-excel-card">
+          <div class="export-icon excel-icon"><i data-lucide="table-2"></i></div>
+          <h3 data-i18n="export.excelTitle">Excel Export</h3>
+          <p data-i18n="export.excelDesc">Export as an XLSX spreadsheet. Each class gets its own sheet with full schedule details.</p>
+          <div class="export-options">
+            <label class="checkbox-label"><input type="checkbox" id="xl-summary" checked /> <span data-i18n="export.summarySheet">Summary Sheet</span></label>
+            <label class="checkbox-label"><input type="checkbox" id="xl-workload" checked /> <span data-i18n="export.workloadSheet">Workload Sheet</span></label>
+          </div>
+          <button class="btn btn-primary w-full" id="export-excel-btn">
+            <i data-lucide="download"></i> <span data-i18n="export.downloadExcel">Download Excel</span>
+          </button>
+        </div>
+
+        <div class="glass-card export-card" id="export-print-card">
+          <div class="export-icon print-icon"><i data-lucide="printer"></i></div>
+          <h3 data-i18n="export.printTitle">Print View</h3>
+          <p data-i18n="export.printDesc">Open a printer-friendly view that strips styles for clean, ink-efficient output.</p>
+          <div class="export-options">
+            <label class="checkbox-label"><input type="checkbox" id="print-grid-lines" checked /> <span data-i18n="export.gridLines">Show Grid Lines</span></label>
+          </div>
+          <button class="btn btn-outline w-full" id="print-btn">
+            <i data-lucide="printer"></i> <span data-i18n="export.openPrint">Open Print View</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SETTINGS ── -->
+    <section id="page-settings" class="content-page">
+      <div class="page-header">
+        <div>
+          <h2 data-i18n="settings.title">Settings</h2>
+          <p class="page-subtitle" data-i18n="settings.subtitle">Manage system configuration and users</p>
+        </div>
+      </div>
+      <div class="settings-grid">
+        <!-- General -->
+        <div class="glass-card settings-section">
+          <h3><i data-lucide="school"></i> <span data-i18n="settings.institution">Institution</span></h3>
+          <div class="form-group">
+            <label data-i18n="settings.instName">Institution Name</label>
+            <input type="text" id="inst-name" class="form-input" placeholder="My University" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="settings.semester">Semester</label>
+            <input type="text" id="inst-semester" class="form-input" placeholder="Semester 1" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="settings.academicYear">Academic Year</label>
+            <input type="text" id="inst-year" class="form-input" placeholder="2024-2025" />
+          </div>
+          <div class="form-group">
+            <label data-i18n="settings.periodDuration">Period Duration (minutes)</label>
+            <input type="number" id="period-duration" class="form-input" value="50" min="30" max="120" />
+          </div>
+          <button class="btn btn-primary" id="save-general-btn"><i data-lucide="save"></i> <span data-i18n="settings.saveSettings">Save Settings</span></button>
+        </div>
+
+        <!-- Language -->
+        <div class="glass-card settings-section" id="language-settings-section">
+          <h3><i data-lucide="globe"></i> <span data-i18n="settings.language">Language</span></h3>
+          <p class="page-subtitle" style="margin-bottom:1rem" data-i18n="settings.languageDesc">Select your preferred display language</p>
+          <div class="lang-grid" id="lang-grid"></div>
+        </div>
+
+        <!-- Users -->
+        <div class="glass-card settings-section">
+          <h3><i data-lucide="shield-check"></i> <span data-i18n="settings.userAccounts">User Accounts</span></h3>
+          <div id="user-list"></div>
+          <button class="btn btn-outline mt-1 w-full" id="add-user-btn"><i data-lucide="user-plus"></i> <span data-i18n="settings.addUser">Add User</span></button>
+        </div>
+
+        <!-- Period Config -->
+        <div class="glass-card settings-section">
+          <h3><i data-lucide="clock"></i> <span data-i18n="settings.periodTimings">Period Timings</span></h3>
+          <div id="period-timings-list"></div>
+          <button class="btn btn-outline mt-1" id="add-period-btn"><i data-lucide="plus"></i> <span data-i18n="settings.addPeriod">Add Period</span></button>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="glass-card settings-section danger-zone">
+          <h3><i data-lucide="triangle-alert"></i> <span data-i18n="settings.dangerZone">Danger Zone</span></h3>
+          <p class="danger-desc" data-i18n="settings.dangerDesc">These actions are irreversible. Proceed with caution.</p>
+          <button class="btn btn-danger" id="clear-all-btn"><i data-lucide="trash-2"></i> <span data-i18n="settings.clearAll">Clear All Data</span></button>
+          <button class="btn btn-danger mt-sm" id="reset-app-btn"><i data-lucide="refresh-cw"></i> <span data-i18n="settings.resetApp">Reset App</span></button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════ MODALS ═══════════════════════════ -->
+
+<!-- Faculty Modal -->
+<div class="modal-overlay hidden" id="faculty-modal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3 id="faculty-modal-title" data-i18n="modal.addFaculty">Add Faculty</h3>
+      <button class="modal-close" data-modal="faculty-modal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="modal.fullName">Full Name *</label>
+          <input type="text" id="fm-name" class="form-input" placeholder="Dr. John Smith" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="modal.email">Email</label>
+          <input type="email" id="fm-email" class="form-input" placeholder="john@school.edu" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="modal.dept">Department *</label>
+          <input type="text" id="fm-dept" class="form-input" placeholder="Computer Science" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="modal.maxHours">Max Hours / Week</label>
+          <input type="number" id="fm-hours" class="form-input" value="18" min="1" max="40" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="modal.subjectExpertise">Subject Expertise (comma-separated)</label>
+        <input type="text" id="fm-subjects" class="form-input" placeholder="Math, Physics, Chemistry" />
+      </div>
+      <div class="form-group">
+        <label><span data-i18n="modal.availability">Availability</span> <span class="hint" data-i18n="modal.availHint">(click cells to toggle)</span></label>
+        <div class="avail-grid" id="fm-avail-grid"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal="faculty-modal" data-i18n="modal.cancel">Cancel</button>
+      <button class="btn btn-primary" id="save-faculty-btn"><i data-lucide="save"></i> <span data-i18n="modal.saveFaculty">Save Faculty</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Subject Modal -->
+<div class="modal-overlay hidden" id="subject-modal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3 id="subject-modal-title" data-i18n="modal.addSubject">Add Subject</h3>
+      <button class="modal-close" data-modal="subject-modal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="modal.subjectName">Subject Name *</label>
+          <input type="text" id="sm-name" class="form-input" placeholder="Data Structures" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="modal.subjectCode">Subject Code</label>
+          <input type="text" id="sm-code" class="form-input" placeholder="CS301" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="modal.hoursWeek">Hours Per Week *</label>
+          <input type="number" id="sm-hours" class="form-input" value="4" min="1" max="20" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="modal.roomTypeReq">Room Type Required</label>
+          <select id="sm-room-type" class="form-input">
+            <option value="lecture">Lecture Hall</option>
+            <option value="lab">Computer Lab</option>
+            <option value="seminar">Seminar Room</option>
+            <option value="any">Any</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="modal.assignedFaculty">Assigned Faculty</label>
+          <select id="sm-faculty" class="form-input"><option value="">-- Select Faculty --</option></select>
+        </div>
+        <div class="form-group">
+          <label data-i18n="modal.colorTag">Color Tag</label>
+          <input type="color" id="sm-color" class="form-input color-input" value="#6366f1" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal="subject-modal" data-i18n="modal.cancel">Cancel</button>
+      <button class="btn btn-primary" id="save-subject-btn"><i data-lucide="save"></i> <span data-i18n="modal.saveSubject">Save Subject</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Room Modal -->
+<div class="modal-overlay hidden" id="room-modal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3 id="room-modal-title" data-i18n="modal.addRoom">Add Classroom</h3>
+      <button class="modal-close" data-modal="room-modal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label data-i18n="modal.roomName">Room Name / Number *</label>
+          <input type="text" id="rm-name" class="form-input" placeholder="Room 101" />
+        </div>
+        <div class="form-group">
+          <label data-i18n="modal.capacity">Capacity</label>
+          <input type="number" id="rm-capacity" class="form-input" value="60" min="10" max="500" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label data-i18n="modal.roomType">Room Type</label>
+        <select id="rm-type" class="form-input">
+          <option value="lecture">Lecture Hall</option>
+          <option value="lab">Computer Lab</option>
+          <option value="seminar">Seminar Room</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal="room-modal" data-i18n="modal.cancel">Cancel</button>
+      <button class="btn btn-primary" id="save-room-btn"><i data-lucide="save"></i> <span data-i18n="modal.saveRoom">Save Room</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Slot Edit Modal -->
+<div class="modal-overlay hidden" id="slot-modal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3 data-i18n="modal.editSlot">Edit Slot</h3>
+      <button class="modal-close" data-modal="slot-modal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="slot-context" id="slot-context"></div>
+      <div class="form-group">
+        <label data-i18n="modal.subject">Subject</label>
+        <select id="slot-subject" class="form-input"></select>
+      </div>
+      <div class="form-group">
+        <label data-i18n="modal.faculty">Faculty</label>
+        <select id="slot-faculty" class="form-input"></select>
+      </div>
+      <div class="form-group">
+        <label data-i18n="modal.room">Room</label>
+        <select id="slot-room" class="form-input"></select>
+      </div>
+      <div class="clash-warning hidden" id="slot-clash-warn">
+        <i data-lucide="triangle-alert"></i> <span id="slot-clash-msg">Clash detected!</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger-outline" id="clear-slot-btn"><i data-lucide="eraser"></i> <span data-i18n="modal.clearSlot">Clear Slot</span></button>
+      <button class="btn btn-outline" data-modal="slot-modal" data-i18n="modal.cancel">Cancel</button>
+      <button class="btn btn-primary" id="save-slot-btn"><i data-lucide="save"></i> <span data-i18n="modal.save">Save</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal-overlay hidden" id="user-modal">
+  <div class="modal glass-card">
+    <div class="modal-header">
+      <h3 id="user-modal-title" data-i18n="modal.addUser">Add User</h3>
+      <button class="modal-close" data-modal="user-modal"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" id="um-name" class="form-input" placeholder="Jane Doe" />
+      </div>
+      <div class="form-group">
+        <label data-i18n="modal.email">Email *</label>
+        <input type="email" id="um-email" class="form-input" placeholder="jane@school.edu" />
+      </div>
+      <div class="form-group">
+        <label data-i18n="modal.password">Password *</label>
+        <input type="password" id="um-password" class="form-input" placeholder="••••••••" />
+      </div>
+      <div class="form-group">
+        <label data-i18n="modal.role">Role</label>
+        <select id="um-role" class="form-input">
+          <option value="admin">Administrator</option>
+          <option value="teacher">Teacher</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal="user-modal" data-i18n="modal.cancel">Cancel</button>
+      <button class="btn btn-primary" id="save-user-btn"><i data-lucide="save"></i> <span data-i18n="modal.saveUser">Save User</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════ AI ASSISTANT ═══════════════════════════ -->
+
+<!-- Floating Action Button -->
+<button id="chat-fab" title="TTP Assistant">
+  <i data-lucide="bot"></i>
+  <div class="fab-badge">AI</div>
+</button>
+
+<!-- Chat Panel -->
+<div id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-avatar">
+      <i data-lucide="bot"></i>
+      <div class="chat-online-dot"></div>
+    </div>
+    <div class="chat-header-info">
+      <div class="chat-header-name">TTP Assistant</div>
+      <div class="chat-header-status">● Online — Ready to help</div>
+    </div>
+    <button id="tutorial-chip-btn" onclick="Assistant.startTutorial()">🎓 Tutorial</button>
+    <button id="chat-close-btn"><i data-lucide="x"></i></button>
+  </div>
+  <div class="chat-quick-chips">
+    <button class="chat-quick-chip" onclick="Assistant.sendMessage('Start tutorial')">🎓 Tutorial</button>
+    <button class="chat-quick-chip" onclick="Assistant.sendMessage('how to generate timetable')">⚡ Generate</button>
+    <button class="chat-quick-chip" onclick="Assistant.sendMessage('how to export')">💾 Export</button>
+    <button class="chat-quick-chip" onclick="Assistant.sendMessage('show status')">📊 Status</button>
+  </div>
+  <div id="chat-body"></div>
+  <div class="chat-footer">
+    <input type="text" id="chat-input" placeholder="Ask me anything..." autocomplete="off" />
+    <button id="chat-send-btn"><i data-lucide="send"></i></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TUTORIAL OVERLAY ═══════════════════════════ -->
+<div id="tutorial-overlay" class="hidden">
+  <div id="tutorial-modal">
+    <!-- Progress bar -->
+    <div class="tut-progress-wrap">
+      <div id="tut-progress-fill"></div>
+    </div>
+    <!-- Header -->
+    <div class="tut-header">
+      <div id="tut-icon">🏫</div>
+      <div class="tut-header-text">
+        <div id="tut-title">Welcome to Time Table Pro!</div>
+        <div id="tut-subtitle">Step 1 of 7 — Overview</div>
+      </div>
+      <button id="tut-close"><i data-lucide="x"></i></button>
+    </div>
+    <!-- Step dots -->
+    <div id="tut-dots"></div>
+    <!-- Body -->
+    <div id="tut-body"></div>
+    <!-- Footer -->
+    <div class="tut-footer">
+      <button id="tut-skip">Skip Tutorial</button>
+      <div class="tut-nav-btns">
+        <button id="tut-prev">← Back</button>
+        <button id="tut-next">Next →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/i18n.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/faculty.js"></script>
+<script src="js/subjects.js"></script>
+<script src="js/scheduler.js"></script>
+<script src="js/timetable.js"></script>
+<script src="js/workload.js"></script>
+<script src="js/export.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/assistant.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
