@@ -32,8 +32,8 @@ The system ensures efficient scheduling while minimizing errors and manual work.
 
 ## Technologies Used
 
-* Python
-* HTML/CSS
+* CSS
+* HTML
 * JavaScript
 
 
